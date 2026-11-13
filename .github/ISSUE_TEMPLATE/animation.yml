@@ -1,0 +1,43 @@
+name: Animations
+description: Animations and interactive visuals for one unit (Cofounder B, animations/)
+title: "[animation] Unit N animations"
+labels: ["animation"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      value: Every Unit N lesson has the visual it opens with, checked in the gallery.
+    validations:
+      required: true
+  - type: textarea
+    id: animations
+    attributes:
+      label: Animations (name · size S/M/R · what the student sees and does)
+      value: |
+        - [ ] `name` (S) · ...
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] Built with `defineAnimation`, folder name = `name`, params have bounds and presets for each lesson variant
+        - [ ] Uses only `theme` colors; respects `playing` and `reducedMotion`; fits any width from 340 to 640 px
+        - [ ] Calls `onInteract` on interaction and `onComplete` once at the "aha" moment
+        - [ ] Keyboard-operable handles, touch works, `aria-label` set
+        - [ ] Checked in the gallery (GIF in the PR); `npm run check` passes
+    validations:
+      required: true
+  - type: input
+    id: hours
+    attributes:
+      label: Estimate (hours, 1–4)
+    validations:
+      required: true
+  - type: input
+    id: blocked
+    attributes:
+      label: Blocked by
+      placeholder: "#N"

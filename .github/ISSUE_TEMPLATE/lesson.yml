@@ -1,0 +1,42 @@
+name: Lessons (content)
+description: Lessons for one unit (Cofounder B, content/)
+title: "[content] Unit N lessons"
+labels: ["content"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      value: Every concept in Unit N has a working lesson on the path.
+    validations:
+      required: true
+  - type: textarea
+    id: lessons
+    attributes:
+      label: Lessons (concept id · Stewart § · opening animation)
+      value: |
+        - [ ] `concept-id` · §x.y · `animation-name`
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] Each lesson opens with an animation screen, has ≤ 40-word explanations, and ends with 2–3 questions
+        - [ ] Every answer re-derived by hand and checked a second way (numbers, CAS or graph)
+        - [ ] Wrong choices are realistic mistakes; feedback is one line and says why
+        - [ ] `npm run validate` passes
+    validations:
+      required: true
+  - type: input
+    id: hours
+    attributes:
+      label: Estimate (hours, 1–4)
+    validations:
+      required: true
+  - type: input
+    id: blocked
+    attributes:
+      label: Blocked by
+      placeholder: "#N (the outline and this unit's animations)"

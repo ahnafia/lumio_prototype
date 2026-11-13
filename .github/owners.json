@@ -1,0 +1,9 @@
+{
+  "$comment": "Read by .github/scripts/check-ownership.mjs. Paths ending in / are folders. Anything not listed is shared and needs the other cofounder's approval.",
+  "people": [
+    { "role": "A", "login": "ahnafia", "branchPrefix": "a/", "paths": ["app/", "index.html"] },
+    { "role": "B", "login": "macgrjd9", "branchPrefix": "b/", "paths": ["content/", "animations/", "gallery.html"] }
+  ],
+  "free": ["docs/"],
+  "contract": "contract/"
+}

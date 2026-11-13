@@ -1,0 +1,45 @@
+{
+  "name": "lumio-prototype",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Lumio: a Duolingo-style path of Brilliant-style lessons for Penn State MATH 140 (Calculus I).",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite",
+    "gallery": "vite --open /gallery.html",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "validate": "vitest run contract",
+    "check": "npm run typecheck && npm run lint && npm run validate && npm run build"
+  },
+  "dependencies": {
+    "katex": "^0.19.1",
+    "mafs": "^0.21.0",
+    "mathjs": "^15.2.0",
+    "motion": "^14.14.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/katex": "^0.16.8",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}

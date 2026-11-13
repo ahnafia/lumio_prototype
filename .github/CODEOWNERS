@@ -1,0 +1,17 @@
+# Who reviews what. Enforcement lives in the `ownership` CI check (.github/scripts/check-ownership.mjs).
+# Order matters: the last matching pattern wins.
+
+# Shared by default (contract, root config, docs, .github): both cofounders.
+*                   @ahnafia @macgrjd9
+
+# Cofounder A: the app
+/app/               @ahnafia
+/index.html         @ahnafia
+
+# Cofounder B: the course
+/content/           @macgrjd9
+/animations/        @macgrjd9
+/gallery.html       @macgrjd9
+
+# The contract: both, always
+/contract/          @ahnafia @macgrjd9

@@ -1,0 +1,42 @@
+name: Bug
+description: Something broken. Assign the owner of the folder it lives in, and never fix the other person's folder yourself.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area (also add the matching label)
+      options:
+        - app (A, app/)
+        - content (B, content/)
+        - animation (B, animations/)
+        - contract (both)
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what should happen
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1. Open (production / preview / local) ...
+        2. Unit / lesson / screen ...
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshot, console error, device
+  - type: checkboxes
+    id: blocker
+    attributes:
+      label: Severity
+      options:
+        - label: Blocks a demo or another task (add the `blocker` label)
