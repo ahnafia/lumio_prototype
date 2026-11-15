@@ -397,3 +397,8 @@
 .graph__swatch--3 {
   background: var(--c-series-3);
 }
+
+/* While the feedback sheet is up, leave room so the question stays readable above it. */
+.player.is-checked .player__body {
+  padding-bottom: calc(280px + env(safe-area-inset-bottom));
+}
