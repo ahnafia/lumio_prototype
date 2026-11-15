@@ -1,0 +1,322 @@
+/* Global base styles and shared component styles. Colors only from tokens.css. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-ui);
+  font-size: var(--fs-md);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  line-height: var(--lh-tight);
+  font-weight: var(--fw-bold);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--c-primary);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.column {
+  width: 100%;
+  max-width: var(--col-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+/* ---------------------------------------------------------------- top bar */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--c-bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.topbar__inner {
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  color: var(--c-ink);
+  text-decoration: none;
+  margin-right: auto;
+}
+
+/* The "lumen": a small glowing dot, Lumio's mark. */
+.wordmark__glow {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  box-shadow: 0 0 0 4px var(--c-accent-soft);
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  min-height: var(--tap);
+  padding: 0 var(--s-2);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-sm);
+}
+
+.stat--xp {
+  color: var(--c-primary);
+}
+
+.stat--streak {
+  color: var(--c-accent-strong);
+}
+
+.stat--streak.is-cold {
+  color: var(--c-muted);
+}
+
+/* ---------------------------------------------------------------- button */
+
+.btn {
+  --btn-bg: var(--c-primary);
+  --btn-edge: var(--c-primary-strong);
+  --btn-fg: var(--c-on-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 48px;
+  padding: 0 var(--s-6);
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-md);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 var(--edge) 0 var(--btn-edge);
+  transform: translateY(0);
+  transition:
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(var(--edge));
+  box-shadow: 0 0 0 var(--btn-edge);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--secondary {
+  --btn-bg: var(--c-surface);
+  --btn-edge: var(--c-line);
+  --btn-fg: var(--c-primary);
+  border: 2px solid var(--c-line);
+}
+
+.btn--good {
+  --btn-bg: var(--c-good);
+  --btn-edge: var(--c-good-strong);
+}
+
+.btn--bad {
+  --btn-bg: var(--c-bad);
+  --btn-edge: var(--c-bad-strong);
+}
+
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-edge: transparent;
+  --btn-fg: var(--c-muted);
+  padding: 0 var(--s-3);
+}
+
+.btn:disabled {
+  --btn-bg: var(--c-locked);
+  --btn-edge: var(--c-locked-strong);
+  --btn-fg: var(--c-muted);
+  cursor: not-allowed;
+}
+
+.btn--secondary:disabled,
+.btn--ghost:disabled {
+  --btn-bg: transparent;
+  opacity: 0.5;
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--c-muted);
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: var(--c-surface-2);
+  color: var(--c-ink);
+}
+
+/* ---------------------------------------------------------------- card */
+
+.card {
+  background: var(--c-surface);
+  border: 2px solid var(--c-line);
+  border-radius: var(--r-lg);
+  padding: var(--s-6);
+}
+
+/* ---------------------------------------------------------------- progress bar */
+
+.progress {
+  flex: 1;
+  height: 14px;
+  border-radius: var(--r-pill);
+  background: var(--c-surface-2);
+  overflow: hidden;
+}
+
+.progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--c-accent);
+  box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.08);
+  transition: width var(--dur-slow) var(--ease);
+}
+
+/* ---------------------------------------------------------------- sheet */
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  background: var(--c-surface);
+  border-top: 2px solid var(--c-line);
+  padding: var(--s-5) 0 calc(var(--s-5) + env(safe-area-inset-bottom));
+  transform: translateY(105%);
+  transition: transform var(--dur-slow) var(--ease);
+}
+
+.sheet.is-open {
+  transform: translateY(0);
+}
+
+.sheet--good {
+  background: var(--c-good-soft);
+  border-top-color: var(--c-good);
+}
+
+.sheet--bad {
+  background: var(--c-bad-soft);
+  border-top-color: var(--c-bad);
+}
+
+/* ---------------------------------------------------------------- rich text */
+
+.rich > * + * {
+  margin-top: var(--s-3);
+}
+
+.rich__display {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: var(--s-1) 0;
+}
+
+.rich strong {
+  font-weight: var(--fw-bold);
+}
+
+.rich .katex {
+  font-size: 1.08em;
+}
+
+/* ---------------------------------------------------------------- full-page messages */
+
+.message {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-4);
+  text-align: center;
+  padding: var(--s-8) 0;
+}
+
+.message__icon {
+  color: var(--c-accent-strong);
+}
+
+.message p {
+  color: var(--c-muted);
+  max-width: 34ch;
+}
