@@ -5,6 +5,7 @@ import { useCourse } from '../course';
 import { Button, ProgressBar } from '../design/components';
 import { Icon } from '../design/Icon';
 import { Message } from '../shell/Message';
+import { GraphTap } from './questions/GraphTap';
 import { MultipleChoice } from './questions/MultipleChoice';
 import { Numeric } from './questions/Numeric';
 import { NO_ANSWER, type AnswerStatus } from './questions/types';
@@ -36,7 +37,7 @@ export function LessonRoute() {
 
 function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const navigate = useNavigate();
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(() => devStartScreen(lesson.screens.length));
   /** Screen ids whose animation the student has engaged with. */
   const [engaged, setEngaged] = useState<ReadonlySet<string>>(() => new Set());
   /** The current question's answer status (reset per screen). */
@@ -134,13 +135,14 @@ function ScreenView({ screen, engaged, onEngaged, onAnswer }: ScreenViewProps) {
       return <MultipleChoice screen={screen} locked={false} revealed={false} onChange={onAnswer} />;
     case 'numeric':
       return <Numeric screen={screen} locked={false} revealed={false} onChange={onAnswer} />;
-    default:
-      // Temporary until #10.
-      return (
-        <div className="screen">
-          <h1 className="screen__title">Question goes here</h1>
-          <p className="screen__hint">A {screen.type} question. It arrives in #10.</p>
-        </div>
-      );
+    case 'graph-tap':
+      return <GraphTap screen={screen} locked={false} revealed={false} onChange={onAnswer} />;
   }
+}
+
+/** Dev only: `#/lesson/<id>?s=4` opens a lesson at screen 4 (0-based) for quick testing. */
+function devStartScreen(count: number): number {
+  if (!import.meta.env.DEV) return 0;
+  const s = Number(new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('s'));
+  return Number.isInteger(s) && s > 0 && s < count ? s : 0;
 }

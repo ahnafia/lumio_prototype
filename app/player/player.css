@@ -21,6 +21,7 @@
 
 .player__body {
   flex: 1;
+  overflow-x: clip; /* the slide-in transition must never widen the page */
   padding-top: var(--s-4);
   /* room so the pinned footer never covers content */
   padding-bottom: calc(120px + env(safe-area-inset-bottom));
@@ -240,4 +241,159 @@
 .numeric__unit {
   color: var(--c-muted);
   font-weight: var(--fw-medium);
+}
+
+/* ---------------------------------------------------------------- graph tap */
+
+.graph {
+  width: 100%;
+}
+
+.graph__frame {
+  position: relative;
+  border-radius: var(--r-md);
+  border: 2px solid var(--c-line);
+  background: var(--c-surface);
+  overflow: hidden;
+}
+
+.graph__svg {
+  display: block;
+  cursor: crosshair;
+  touch-action: manipulation;
+  font-family: var(--font-ui);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.graph__svg.is-locked {
+  cursor: default;
+}
+
+.graph__svg:focus-visible {
+  outline: 3px solid var(--c-accent);
+  outline-offset: -3px;
+}
+
+.graph__grid {
+  stroke: var(--c-grid);
+  stroke-width: 1;
+}
+
+.graph__axis {
+  stroke: var(--c-axis);
+  stroke-width: 1.5;
+}
+
+.graph__tick {
+  fill: var(--c-muted);
+  font-size: 11px;
+}
+
+.graph__curve {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.graph__curve--1 {
+  stroke: var(--c-series-1);
+}
+.graph__curve--2 {
+  stroke: var(--c-series-2);
+}
+.graph__curve--3 {
+  stroke: var(--c-series-3);
+}
+
+.graph__point {
+  stroke: var(--c-ink);
+  stroke-width: 2;
+}
+
+.graph__point--filled {
+  fill: var(--c-ink);
+}
+
+.graph__point--open {
+  fill: var(--c-surface);
+}
+
+.graph__label {
+  position: absolute;
+  font-size: var(--fs-sm);
+  pointer-events: none;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--c-surface) 85%, transparent);
+  border-radius: 4px;
+  padding: 0 2px;
+}
+
+.graph__marker-halo {
+  fill: color-mix(in srgb, var(--c-accent) 30%, transparent);
+  stroke: var(--c-accent-strong);
+  stroke-width: 2;
+}
+
+.graph__marker-dot {
+  fill: var(--c-accent-strong);
+}
+
+.graph__marker.is-right .graph__marker-halo {
+  fill: color-mix(in srgb, var(--c-good) 25%, transparent);
+  stroke: var(--c-good);
+}
+.graph__marker.is-right .graph__marker-dot {
+  fill: var(--c-good);
+}
+
+.graph__marker.is-wrong .graph__marker-halo {
+  fill: color-mix(in srgb, var(--c-bad) 25%, transparent);
+  stroke: var(--c-bad);
+}
+.graph__marker.is-wrong .graph__marker-dot {
+  fill: var(--c-bad);
+}
+
+.graph__target {
+  fill: color-mix(in srgb, var(--c-good) 18%, transparent);
+  stroke: var(--c-good);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+
+.graph__target-band {
+  fill: color-mix(in srgb, var(--c-good) 16%, transparent);
+}
+
+.graph__legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+  font-size: var(--fs-sm);
+}
+
+.graph__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.graph__swatch {
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+}
+.graph__swatch--1 {
+  background: var(--c-series-1);
+}
+.graph__swatch--2 {
+  background: var(--c-series-2);
+}
+.graph__swatch--3 {
+  background: var(--c-series-3);
 }
