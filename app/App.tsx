@@ -1,5 +1,6 @@
 import { HashRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { PathHome } from './path/PathHome';
+import { LessonRoute } from './player/LessonPlayer';
 import { useProgress } from './progress/useProgress';
 import { ErrorBoundary } from './shell/ErrorBoundary';
 import { Message } from './shell/Message';
@@ -12,14 +13,6 @@ function Home() {
       <TopBar xp={progress.xp} streak={progress.streak} />
       <PathHome progress={progress} />
     </>
-  );
-}
-
-function LessonRoute() {
-  return (
-    <main className="column">
-      <Message icon="play" title="Lesson player" body="The player lands in #6." />
-    </main>
   );
 }
 
