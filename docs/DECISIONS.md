@@ -14,3 +14,5 @@ One dated line per decision, newest at the bottom. Append only. Either cofounder
 - 2026-11-13: Hosting is Vercel: PR previews plus production on `main`.
 - 2026-11-13: Wrong answers never block progress. The feedback sheet explains, then Continue moves on.
 - 2026-11-13: No required reviews on own-folder PRs. Shared files need the other cofounder's approval, enforced by the `ownership` check.
+- 2026-11-14: Lumio's brand is "lamplight": warm paper background, deep indigo ink, iris primary (#5047cc), amber accent (#f4a622), teal for correct and warm coral for "not quite". Font is Lexend (Google Fonts) with a system fallback. Tokens live in `app/design/tokens.css`; `app/design/theme.ts` reads them at runtime into the `AnimationTheme`.
+- 2026-11-14: `?example` forces the example course, before the hash (`/?example#/`) or inside it (`#/?example`). PR screenshots are committed under `docs/screenshots/`.

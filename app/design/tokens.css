@@ -1,0 +1,102 @@
+/*
+ * Lumio design tokens: the only place colors, type, radius, spacing and motion are defined.
+ * Brand idea: "lamplight". Warm paper, deep indigo ink, an iris primary and an amber glow.
+ * theme.ts reads these at runtime to build the AnimationTheme, so animations match.
+ */
+:root {
+  /* Color: surfaces */
+  --c-bg: #faf7f2;
+  --c-surface: #ffffff;
+  --c-surface-2: #f3eee6;
+  --c-line: #e7e0d4;
+  --c-grid: #ece6dc;
+  --c-axis: #a7a2b4;
+
+  /* Color: text */
+  --c-ink: #1f1d36;
+  --c-muted: #6b6880;
+  --c-on-color: #ffffff;
+
+  /* Color: brand */
+  --c-primary: #5047cc;
+  --c-primary-strong: #3a32a3;
+  --c-primary-soft: #ebe9fc;
+  --c-accent: #f4a622;
+  --c-accent-strong: #c7820e;
+  --c-accent-soft: #fdf1d8;
+  --c-secondary: #dc4f7a;
+
+  /* Color: feedback. "Good" is teal, "not quite" is a warm coral, never a harsh red. */
+  --c-good: #0f9488;
+  --c-good-strong: #0a7067;
+  --c-good-soft: #daf2ef;
+  --c-bad: #df6440;
+  --c-bad-strong: #b24a2b;
+  --c-bad-soft: #fce7df;
+
+  /* Color: path node states */
+  --c-locked: #ddd7cc;
+  --c-locked-strong: #c4bdb0;
+
+  /* Color: extra series for animations */
+  --c-series-1: #5047cc;
+  --c-series-2: #dc4f7a;
+  --c-series-3: #0f9488;
+
+  --c-scrim: rgb(31 29 54 / 0.32);
+
+  /* Type */
+  --font-ui: 'Lexend', ui-rounded, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.5rem;
+  --fs-2xl: 2rem;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-bold: 650;
+  --lh-tight: 1.2;
+  --lh-body: 1.55;
+
+  /* Shape */
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-pill: 999px;
+  --edge: 4px; /* depth of the chunky button edge */
+
+  /* Spacing (4px grid) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 32px;
+  --s-8: 48px;
+
+  /* Layout */
+  --col-max: 640px;
+  --gutter: 16px;
+  --tap: 44px;
+  --topbar-h: 60px;
+
+  /* Motion: screen transitions stay in 150–300 ms */
+  --dur-fast: 150ms;
+  --dur: 220ms;
+  --dur-slow: 300ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --shadow-1: 0 1px 2px rgb(31 29 54 / 0.06), 0 2px 8px rgb(31 29 54 / 0.06);
+  --shadow-2: 0 8px 32px rgb(31 29 54 / 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+    --dur-slow: 0ms;
+  }
+}
