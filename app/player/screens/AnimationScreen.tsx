@@ -12,7 +12,11 @@ interface Props {
 export function AnimationScreen({ screen, engaged, onEngaged }: Props) {
   return (
     <div className="screen screen--animation">
-      {screen.title && <h1 className="screen__title">{screen.title}</h1>}
+      {screen.title && (
+        <h1 className="screen__title">
+          <RichText inline text={screen.title} />
+        </h1>
+      )}
       <AnimationBox visual={screen.visual} playing onInteract={onEngaged} onComplete={onEngaged} />
       <RichText className="screen__caption" text={screen.caption} />
       {screen.requireInteraction && !engaged && (

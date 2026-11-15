@@ -58,3 +58,11 @@ export const RichText = memo(function RichText({ text, inline, className }: Rich
     </div>
   );
 });
+
+/** Plain text for labels (aria-label, title): math as its TeX source without backslashes, no ** markers. */
+export function plainText(text: string): string {
+  return tokenizeMath(text)
+    .map((t) => (t.type === 'math' ? t.tex.replace(/\\([a-zA-Z]+)/g, '$1').replace(/[{}\\]/g, '') : t.value.replaceAll('**', '')))
+    .join('')
+    .trim();
+}
