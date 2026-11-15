@@ -42,7 +42,8 @@ button {
 }
 
 :focus-visible {
-  outline: 3px solid var(--c-accent);
+  /* Iris, not amber: the ring needs 3:1 against paper and white. */
+  outline: 3px solid var(--c-primary);
   outline-offset: 2px;
 }
 
@@ -124,7 +125,7 @@ button {
 }
 
 .stat--streak {
-  color: var(--c-accent-strong);
+  color: var(--c-accent-ink);
 }
 
 .stat--streak.is-cold {
@@ -314,7 +315,7 @@ button {
 }
 
 .message__icon {
-  color: var(--c-accent-strong);
+  color: var(--c-accent-ink);
 }
 
 .message p {

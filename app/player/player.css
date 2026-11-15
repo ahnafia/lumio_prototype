@@ -90,6 +90,8 @@
 
 .screen {
   display: grid;
+  /* minmax(0, …): children (inputs, wide math) may never push past the column. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-5);
 }
 
@@ -118,9 +120,9 @@
 .anim-box__frame {
   border-radius: var(--r-md);
   overflow: hidden;
-  border: 2px solid var(--c-line);
+  /* A ring, not a border, so the animation gets the full column width (343 px at 375). */
+  box-shadow: 0 0 0 2px var(--c-line);
   background: var(--c-surface);
-  box-sizing: content-box;
 }
 
 .anim-placeholder {
@@ -275,6 +277,29 @@
   color: var(--c-axis);
 }
 
+.numeric__verdict {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: var(--c-on-color);
+  background: var(--c-good);
+}
+
+.numeric--wrong .numeric__verdict {
+  background: var(--c-bad);
+}
+
+.graph__marker-glyph {
+  fill: none;
+  stroke: var(--c-on-color);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .numeric__unit {
   color: var(--c-muted);
   font-weight: var(--fw-medium);
@@ -289,7 +314,7 @@
 .graph__frame {
   position: relative;
   border-radius: var(--r-md);
-  border: 2px solid var(--c-line);
+  box-shadow: 0 0 0 2px var(--c-line);
   background: var(--c-surface);
   overflow: hidden;
 }
@@ -308,7 +333,7 @@
 }
 
 .graph__svg:focus-visible {
-  outline: 3px solid var(--c-accent);
+  outline: 3px solid var(--c-primary);
   outline-offset: -3px;
 }
 

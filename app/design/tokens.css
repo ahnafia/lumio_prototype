@@ -24,14 +24,17 @@
   --c-accent: #f4a622;
   --c-accent-strong: #c7820e;
   --c-accent-soft: #fdf1d8;
-  --c-secondary: #dc4f7a;
+  /* Amber for text: the fill amber is too light to read on paper (WCAG 4.5:1). */
+  --c-accent-ink: #8c5a06;
+  --c-secondary: #c63f6c;
 
-  /* Color: feedback. "Good" is teal, "not quite" is a warm coral, never a harsh red. */
-  --c-good: #0f9488;
-  --c-good-strong: #0a7067;
+  /* Color: feedback. "Good" is teal, "not quite" is a warm coral, never a harsh red.
+     Both carry white text at ≥ 4.5:1; the -strong shades read on the -soft fills. */
+  --c-good: #0c7c72;
+  --c-good-strong: #095f58;
   --c-good-soft: #daf2ef;
-  --c-bad: #df6440;
-  --c-bad-strong: #b24a2b;
+  --c-bad: #c24e2c;
+  --c-bad-strong: #9f4227;
   --c-bad-soft: #fce7df;
 
   /* Color: path node states */

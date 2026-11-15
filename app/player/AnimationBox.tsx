@@ -54,8 +54,7 @@ export function AnimationBox({ visual, playing, onInteract, onComplete }: Animat
 
   // Keep very wide-or-tall ratios on screen: cap the height at 60% of the viewport.
   const maxH = typeof window === 'undefined' ? Infinity : window.innerHeight * 0.6;
-  const FRAME_BORDER = 4; // 2px each side, see .anim-box__frame
-  const w = Math.max(0, Math.min(width - FRAME_BORDER, Math.floor(maxH * def.aspectRatio)));
+  const w = Math.max(0, Math.min(width, Math.floor(maxH * def.aspectRatio)));
   const h = Math.floor(w / def.aspectRatio);
   const Anim = def.component;
 
