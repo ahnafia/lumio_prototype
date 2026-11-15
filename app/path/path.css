@@ -247,3 +247,48 @@
   align-items: center;
   gap: var(--s-1);
 }
+
+/* The node a just-finished lesson unlocked: it pops in and glows. */
+.node.is-new {
+  animation: node-unlock 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 250ms backwards;
+}
+
+.node.is-new::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--c-accent-soft) 40%, transparent 70%);
+  z-index: -1;
+  animation: node-glow 1.6s var(--ease) 250ms both;
+  pointer-events: none;
+}
+
+@keyframes node-unlock {
+  from {
+    transform: scale(0.6);
+    box-shadow: 0 6px 0 var(--c-locked-strong);
+    background: var(--c-locked);
+  }
+}
+
+@keyframes node-glow {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node.is-new,
+  .node.is-new::before {
+    animation: none;
+  }
+}

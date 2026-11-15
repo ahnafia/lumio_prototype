@@ -140,11 +140,21 @@ export function subscribe(listener: () => void): () => void {
   };
 }
 
-/** Record a finished lesson. Returns the XP actually awarded. */
-export function recordLessonComplete(lessonId: string, xp: number): number {
-  const { next, xpAwarded } = completeLesson(getProgress(), lessonId, xp, localDay());
+export interface CompletionResult {
+  xpAwarded: number;
+  /** The streak after this lesson. */
+  streak: number;
+  /** True when this lesson grew the streak (the first lesson of a new day). */
+  streakExtended: boolean;
+}
+
+/** Record a finished lesson. */
+export function recordLessonComplete(lessonId: string, xp: number): CompletionResult {
+  const today = localDay();
+  const before = getProgress();
+  const { next, xpAwarded } = completeLesson(before, lessonId, xp, today);
   write(next);
-  return xpAwarded;
+  return { xpAwarded, streak: next.streak.count, streakExtended: before.streak.lastDay !== today };
 }
 
 /** Wipe all progress (Reset). */

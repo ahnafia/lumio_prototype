@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { isQuestion, type Lesson, type QuestionScreen, type Screen } from '@contract/schema';
 import { LessonComplete } from '../celebrate/LessonComplete';
 import { useCourse } from '../course';
 import { Button, ProgressBar } from '../design/components';
 import { Icon } from '../design/Icon';
 import { FeedbackSheet } from '../feedback/FeedbackSheet';
-import { recordLessonComplete } from '../progress/store';
+import { recordLessonComplete, type CompletionResult } from '../progress/store';
 import { Message } from '../shell/Message';
 import { GraphTap } from './questions/GraphTap';
 import { MultipleChoice } from './questions/MultipleChoice';
@@ -21,6 +21,7 @@ export function LessonRoute() {
   const { id = '' } = useParams();
   const { lessons } = useCourse();
   const navigate = useNavigate();
+  const location = useLocation();
   const lesson = lessons[id];
   if (!lesson) {
     return (
@@ -34,12 +35,13 @@ export function LessonRoute() {
       </main>
     );
   }
-  // key: a new lesson id starts a fresh player.
-  return <LessonPlayer key={lesson.id} lesson={lesson} />;
+  // key: a new lesson, or "Review lesson" (a new history entry), starts a fresh player.
+  return <LessonPlayer key={`${lesson.id}:${location.key}`} lesson={lesson} />;
 }
 
 function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const navigate = useNavigate();
+  const { course } = useCourse();
   const screens = lesson.screens;
   const questionCount = screens.filter(isQuestion).length;
 
@@ -51,9 +53,9 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
   /** Set once Check is pressed on the current question: the sheet is open and inputs lock. */
   const [checked, setChecked] = useState<AnswerStatus | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
-  /** XP awarded when the lesson finished; null while playing. */
-  const [xpAwarded, setXpAwarded] = useState<number | null>(null);
-  const finished = xpAwarded !== null;
+  /** Set when the lesson is finished; null while playing. */
+  const [result, setResult] = useState<CompletionResult | null>(null);
+  const finished = result !== null;
 
   const screen = screens[index];
   const isLast = index === screens.length - 1;
@@ -69,7 +71,7 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const advance = useCallback(() => {
     if (isLast) {
       // In the event handler, not an effect, so StrictMode can't record it twice.
-      setXpAwarded(recordLessonComplete(lesson.id, lesson.xp));
+      setResult(recordLessonComplete(lesson.id, lesson.xp));
       return;
     }
     setIndex((i) => i + 1);
@@ -111,9 +113,19 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
     window.scrollTo({ top: 0 });
   }, [index, finished]);
 
-  if (finished) {
+  if (result) {
+    const unit = course.units.find((u) => u.concepts.some((c) => c.lessonId === lesson.id));
+    const unitDone = unit && unit.concepts[unit.concepts.length - 1]?.lessonId === lesson.id ? unit : undefined;
     return (
-      <LessonComplete lesson={lesson} xpEarned={xpAwarded} correct={correctCount} questions={questionCount} onContinue={() => navigate('/')} />
+      <LessonComplete
+        lesson={lesson}
+        result={result}
+        correct={correctCount}
+        questions={questionCount}
+        unitDone={unitDone}
+        onContinue={() => navigate('/', { state: { justCompleted: lesson.id } })}
+        onReview={() => navigate(`/lesson/${lesson.id}`)}
+      />
     );
   }
   if (!screen) return null;

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type Ref } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { pathEntries, useCourse, type PathEntry } from '../course';
 import { Button } from '../design/components';
 import { Icon } from '../design/Icon';
@@ -19,10 +19,16 @@ export function PathHome({ progress }: { progress: ProgressSnapshot }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const currentRef = useRef<HTMLButtonElement>(null);
   const reducedMotion = useReducedMotion();
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Coming back from a finished lesson: highlight the node it unlocked.
+  const [celebrate] = useState(() => !!(location.state as { justCompleted?: string } | null)?.justCompleted);
 
   // Bring the current node into view on load.
   useEffect(() => {
     currentRef.current?.scrollIntoView({ block: 'center', behavior: reducedMotion ? 'auto' : 'smooth' });
+    // Drop the one-time highlight flag so a reload doesn't replay it.
+    if (celebrate) navigate('.', { replace: true, state: null });
     // Only on mount: don't yank the page when progress changes underneath.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -62,6 +68,7 @@ export function PathHome({ progress }: { progress: ProgressSnapshot }) {
                   open={openId === entry.concept.id}
                   onToggle={() => setOpenId((id) => (id === entry.concept.id ? null : entry.concept.id))}
                   buttonRef={state === 'current' ? currentRef : undefined}
+                  justUnlocked={celebrate && state === 'current'}
                 />
               );
             })}
@@ -84,9 +91,10 @@ interface PathNodeProps {
   open: boolean;
   onToggle: () => void;
   buttonRef?: Ref<HTMLButtonElement>;
+  justUnlocked?: boolean;
 }
 
-function PathNode({ entry, state, offset, open, onToggle, buttonRef }: PathNodeProps) {
+function PathNode({ entry, state, offset, open, onToggle, buttonRef, justUnlocked }: PathNodeProps) {
   const navigate = useNavigate();
   const { concept, lesson } = entry;
   const popoverId = `pop-${concept.id}`;
@@ -103,7 +111,7 @@ function PathNode({ entry, state, offset, open, onToggle, buttonRef }: PathNodeP
         <button
           ref={buttonRef}
           type="button"
-          className={`node node--${state}${open ? ' is-open' : ''}`}
+          className={`node node--${state}${open ? ' is-open' : ''}${justUnlocked ? ' is-new' : ''}`}
           aria-label={`${concept.title}, ${STATE_LABEL[state]}`}
           aria-disabled={locked || undefined}
           aria-expanded={locked ? undefined : open}
