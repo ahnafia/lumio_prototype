@@ -20,8 +20,7 @@ export function GraphTap({ screen, locked, revealed, onChange }: QuestionProps<G
   useLayoutEffect(() => {
     const el = boxRef.current;
     if (!el) return;
-    // Minus the frame's 2px borders, so the SVG fits inside it.
-    const measure = () => setWidth(Math.max(0, Math.floor(el.clientWidth) - 4));
+    const measure = () => setWidth(Math.floor(el.clientWidth));
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
@@ -154,7 +153,14 @@ export function GraphTap({ screen, locked, revealed, onChange }: QuestionProps<G
               {tap && (
                 <g className={`graph__marker${revealed ? (correct ? ' is-right' : ' is-wrong') : ''}`} transform={`translate(${sx(tap.x)},${sy(tap.y)})`}>
                   <circle r={13} className="graph__marker-halo" />
-                  <circle r={6} className="graph__marker-dot" />
+                  <circle r={revealed ? 9 : 6} className="graph__marker-dot" />
+                  {/* Right/wrong is shown by shape too, not only color. */}
+                  {revealed &&
+                    (correct ? (
+                      <path className="graph__marker-glyph" d="M-4 0.5l2.8 2.8L4.5-3" />
+                    ) : (
+                      <path className="graph__marker-glyph" d="M-3.5-3.5l7 7M3.5-3.5l-7 7" />
+                    ))}
                 </g>
               )}
             </svg>

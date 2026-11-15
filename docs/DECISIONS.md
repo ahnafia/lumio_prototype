@@ -20,3 +20,4 @@ One dated line per decision, newest at the bottom. Append only. Either cofounder
 - 2026-11-14: Replaying a finished lesson awards 0 XP (no farming), but it still counts as activity for the day streak. Progress is `lumio.progress.v1` in localStorage; a missing or corrupt value starts fresh.
 - 2026-11-14: The streak uses the local calendar day. The top bar shows 0 once a full day has been missed, even before the next lesson resets the stored count to 1.
 - 2026-11-14: Sounds are synthesized at runtime with WebAudio (no audio files, nothing borrowed). They never play before the first pointer or key gesture, and mute is saved as `lumio.muted.v1`.
+- 2026-11-14: Contrast pass: the feedback teal and coral and the unit rose were darkened so white text clears 4.5:1, and amber text uses a new `--c-accent-ink`. Focus rings are iris (3:1 on paper). Right/wrong is also shown by icons, not color alone.

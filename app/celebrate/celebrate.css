@@ -102,7 +102,7 @@
 }
 
 .stat-card--streak .stat-card__value {
-  color: var(--c-accent-strong);
+  color: var(--c-accent-ink);
 }
 
 .stat-card--streak.is-up {
@@ -116,7 +116,7 @@
 }
 
 .stat-card--streak.is-up .stat-card__note {
-  color: var(--c-accent-strong);
+  color: var(--c-accent-ink);
 }
 
 .complete__unit-note {

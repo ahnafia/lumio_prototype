@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import type { NumericScreen } from '@contract/schema';
+import { Icon } from '../../design/Icon';
 import { RichText } from '../../design/RichText';
 import { AnimationBox } from '../AnimationBox';
 import { isWithin, parseNumber } from './parseNumber';
@@ -43,9 +44,19 @@ export function Numeric({ screen, locked, revealed, onChange }: QuestionProps<Nu
           aria-invalid={invalid || undefined}
           aria-describedby={`${id}-hint`}
           onChange={(e) => update(e.target.value)}
+          // On phones, keep the input above the on-screen keyboard once it opens.
+          onFocus={(e) => {
+            const el = e.currentTarget;
+            window.setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
+          }}
           autoFocus
         />
         {screen.unit && <span className="numeric__unit">{screen.unit}</span>}
+        {revealed && (
+          <span className="numeric__verdict" role="img" aria-label={correct ? 'Correct' : 'Incorrect'}>
+            <Icon name={correct ? 'check' : 'close'} size={18} />
+          </span>
+        )}
       </div>
       <p id={`${id}-hint`} className={`screen__hint${invalid ? ' is-warning' : ''}`}>
         {invalid ? 'Use a number like -3, 0.25 or 1/4.' : 'Whole numbers, decimals and fractions like 1/4 all work.'}
