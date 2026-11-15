@@ -6,6 +6,7 @@ import { useCourse } from '../course';
 import { Button, ProgressBar } from '../design/components';
 import { Icon } from '../design/Icon';
 import { FeedbackSheet } from '../feedback/FeedbackSheet';
+import { recordLessonComplete } from '../progress/store';
 import { Message } from '../shell/Message';
 import { GraphTap } from './questions/GraphTap';
 import { MultipleChoice } from './questions/MultipleChoice';
@@ -50,7 +51,9 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
   /** Set once Check is pressed on the current question: the sheet is open and inputs lock. */
   const [checked, setChecked] = useState<AnswerStatus | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
-  const [finished, setFinished] = useState(false);
+  /** XP awarded when the lesson finished; null while playing. */
+  const [xpAwarded, setXpAwarded] = useState<number | null>(null);
+  const finished = xpAwarded !== null;
 
   const screen = screens[index];
   const isLast = index === screens.length - 1;
@@ -65,13 +68,14 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
 
   const advance = useCallback(() => {
     if (isLast) {
-      setFinished(true);
+      // In the event handler, not an effect, so StrictMode can't record it twice.
+      setXpAwarded(recordLessonComplete(lesson.id, lesson.xp));
       return;
     }
     setIndex((i) => i + 1);
     setAnswer(NO_ANSWER);
     setChecked(null);
-  }, [isLast]);
+  }, [isLast, lesson.id, lesson.xp]);
 
   const check = useCallback(() => {
     if (!canCheck) return;
@@ -109,7 +113,7 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
 
   if (finished) {
     return (
-      <LessonComplete lesson={lesson} xpEarned={lesson.xp} correct={correctCount} questions={questionCount} onContinue={() => navigate('/')} />
+      <LessonComplete lesson={lesson} xpEarned={xpAwarded} correct={correctCount} questions={questionCount} onContinue={() => navigate('/')} />
     );
   }
   if (!screen) return null;

@@ -320,3 +320,96 @@ button {
   color: var(--c-muted);
   max-width: 34ch;
 }
+
+/* ---------------------------------------------------------------- menu */
+
+.menu {
+  position: relative;
+}
+
+.menu__list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--s-1));
+  z-index: 40;
+  min-width: 200px;
+  padding: var(--s-2);
+  border-radius: var(--r-md);
+  border: 2px solid var(--c-line);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-2);
+  animation: pop-in var(--dur) var(--ease);
+}
+
+.menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0 var(--s-3);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  font-weight: var(--fw-medium);
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu__item:hover,
+.menu__item:focus-visible {
+  background: var(--c-surface-2);
+}
+
+.menu__item--danger {
+  color: var(--c-bad-strong);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+}
+
+/* ---------------------------------------------------------------- dialog */
+
+.dialog {
+  width: min(400px, calc(100vw - 2 * var(--gutter)));
+  padding: 0;
+  border: 2px solid var(--c-line);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  box-shadow: var(--shadow-2);
+}
+
+.dialog[open] {
+  animation: pop-in var(--dur) var(--ease);
+}
+
+.dialog::backdrop {
+  background: var(--c-scrim);
+}
+
+.dialog__body {
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-6);
+}
+
+.dialog__body h2 {
+  font-size: var(--fs-lg);
+}
+
+.dialog__body p {
+  color: var(--c-muted);
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin-top: var(--s-2);
+}
