@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { pathEntries, useCourse, type PathEntry } from '../course';
 import { Button } from '../design/components';
 import { Icon } from '../design/Icon';
+import { plainText, RichText } from '../design/RichText';
 import { useReducedMotion } from '../design/useReducedMotion';
 import { nodeStates, type NodeState, type ProgressSnapshot } from '../progress/state';
 import './path.css';
@@ -53,8 +54,12 @@ export function PathHome({ progress }: { progress: ProgressSnapshot }) {
         <section key={unit.id} className="unit" aria-labelledby={`unit-${unit.id}`}>
           <header className={`unit__header unit__header--${u % 3}`}>
             <span className="unit__eyebrow">Unit {u + 1}</span>
-            <h2 id={`unit-${unit.id}`}>{unit.title}</h2>
-            <p>{unit.description}</p>
+            <h2 id={`unit-${unit.id}`}>
+              <RichText inline text={unit.title} />
+            </h2>
+            <p>
+              <RichText inline text={unit.description} />
+            </p>
           </header>
           <ol className="unit__nodes">
             {items.map((entry) => {
@@ -112,7 +117,7 @@ function PathNode({ entry, state, offset, open, onToggle, buttonRef, justUnlocke
           ref={buttonRef}
           type="button"
           className={`node node--${state}${open ? ' is-open' : ''}${justUnlocked ? ' is-new' : ''}`}
-          aria-label={`${concept.title}, ${STATE_LABEL[state]}`}
+          aria-label={`${plainText(concept.title)}, ${STATE_LABEL[state]}`}
           aria-disabled={locked || undefined}
           aria-expanded={locked ? undefined : open}
           aria-controls={locked ? undefined : popoverId}
@@ -125,9 +130,13 @@ function PathNode({ entry, state, offset, open, onToggle, buttonRef, justUnlocke
         </button>
       </div>
       {open && !locked && (
-        <div id={popoverId} className={`popover popover--${state}`} role="dialog" aria-label={concept.title} onClick={(e) => e.stopPropagation()}>
-          <h3>{concept.title}</h3>
-          <p className="popover__summary">{lesson.summary}</p>
+        <div id={popoverId} className={`popover popover--${state}`} role="dialog" aria-label={plainText(concept.title)} onClick={(e) => e.stopPropagation()}>
+          <h3>
+            <RichText inline text={concept.title} />
+          </h3>
+          <p className="popover__summary">
+            <RichText inline text={lesson.summary} />
+          </p>
           <p className="popover__meta">
             <span>
               <Icon name="clock" size={16} /> {lesson.estMinutes} min

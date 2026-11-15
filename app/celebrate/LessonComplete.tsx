@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { Lesson, Unit } from '@contract/schema';
 import { Button } from '../design/components';
 import { Icon } from '../design/Icon';
+import { RichText } from '../design/RichText';
 import { useReducedMotion } from '../design/useReducedMotion';
 import type { CompletionResult } from '../progress/store';
 import './celebrate.css';
@@ -38,7 +39,9 @@ export function LessonComplete({ lesson, result, correct, questions, unitDone, o
           </span>
         </div>
         <h1>{heading}</h1>
-        <p className="complete__title">{sub}</p>
+        <p className="complete__title">
+          <RichText inline text={sub} />
+        </p>
         {unitDone && <p className="complete__unit-note">You finished every lesson in this unit.</p>}
 
         <div className="complete__stats">

@@ -1,12 +1,15 @@
+import { lazy, Suspense } from 'react';
 import { HashRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { PathHome } from './path/PathHome';
-import { LessonRoute } from './player/LessonPlayer';
 import { useProgress } from './progress/useProgress';
 import { ErrorBoundary } from './shell/ErrorBoundary';
 import { Message } from './shell/Message';
 import { SettingsMenu } from './shell/SettingsMenu';
 import { SoundToggle } from './sound/SoundToggle';
 import { TopBar } from './shell/TopBar';
+
+// The player (mathjs, motion, every screen type) loads on demand, so the path paints fast.
+const LessonRoute = lazy(() => import('./player/LessonPlayer').then((m) => ({ default: m.LessonRoute })));
 
 function Home() {
   const progress = useProgress();
@@ -46,7 +49,14 @@ export function App() {
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/lesson/:id" element={<LessonRoute />} />
+            <Route
+              path="/lesson/:id"
+              element={
+                <Suspense fallback={<div className="player" aria-busy="true" />}>
+                  <LessonRoute />
+                </Suspense>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ErrorBoundary>
