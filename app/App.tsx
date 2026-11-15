@@ -4,13 +4,16 @@ import { LessonRoute } from './player/LessonPlayer';
 import { useProgress } from './progress/useProgress';
 import { ErrorBoundary } from './shell/ErrorBoundary';
 import { Message } from './shell/Message';
+import { SettingsMenu } from './shell/SettingsMenu';
 import { TopBar } from './shell/TopBar';
 
 function Home() {
   const progress = useProgress();
   return (
     <>
-      <TopBar xp={progress.xp} streak={progress.streak} />
+      <TopBar xp={progress.xp} streak={progress.streak}>
+        <SettingsMenu />
+      </TopBar>
       <PathHome progress={progress} />
     </>
   );
