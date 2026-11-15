@@ -5,6 +5,7 @@ import { useProgress } from './progress/useProgress';
 import { ErrorBoundary } from './shell/ErrorBoundary';
 import { Message } from './shell/Message';
 import { SettingsMenu } from './shell/SettingsMenu';
+import { SoundToggle } from './sound/SoundToggle';
 import { TopBar } from './shell/TopBar';
 
 function Home() {
@@ -12,6 +13,7 @@ function Home() {
   return (
     <>
       <TopBar xp={progress.xp} streak={progress.streak}>
+        <SoundToggle />
         <SettingsMenu />
       </TopBar>
       <PathHome progress={progress} />

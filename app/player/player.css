@@ -27,14 +27,51 @@
   padding-bottom: calc(120px + env(safe-area-inset-bottom));
 }
 
-.player__screen {
-  animation: screen-in var(--dur-slow) var(--ease);
+/* Screen transitions are done with motion in LessonPlayer. */
+
+/* A wrong answer gives a small shake (not under reduced motion). */
+.player__screen.is-wrong .choice--wrong,
+.player__screen.is-wrong .numeric--wrong,
+.player__screen.is-wrong .graph__frame {
+  animation: shake 380ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
 
-@keyframes screen-in {
-  from {
-    opacity: 0;
-    transform: translateX(24px);
+@keyframes shake {
+  20%,
+  80% {
+    transform: translateX(-2px);
+  }
+  35%,
+  65% {
+    transform: translateX(5px);
+  }
+  50% {
+    transform: translateX(-5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player__screen.is-wrong .choice--wrong,
+  .player__screen.is-wrong .numeric--wrong,
+  .player__screen.is-wrong .graph__frame {
+    animation: none;
+  }
+}
+
+/* A correct choice gives a tiny pop. */
+.choice--right {
+  animation: pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pop {
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice--right {
+    animation: none;
   }
 }
 

@@ -264,7 +264,8 @@ button {
   border-top: 2px solid var(--c-line);
   padding: var(--s-5) 0 calc(var(--s-5) + env(safe-area-inset-bottom));
   transform: translateY(105%);
-  transition: transform var(--dur-slow) var(--ease);
+  /* Springs up with a little overshoot; snaps under reduced motion (durations are 0). */
+  transition: transform var(--dur-slow) cubic-bezier(0.34, 1.32, 0.64, 1);
 }
 
 .sheet.is-open {

@@ -19,3 +19,4 @@ One dated line per decision, newest at the bottom. Append only. Either cofounder
 - 2026-11-14: App unit tests run with `npx vitest run --config app/vitest.config.ts`. The shared root config only includes `contract/**` tests, so `npx vitest run app` finds nothing, and changing the shared config would need both approvals.
 - 2026-11-14: Replaying a finished lesson awards 0 XP (no farming), but it still counts as activity for the day streak. Progress is `lumio.progress.v1` in localStorage; a missing or corrupt value starts fresh.
 - 2026-11-14: The streak uses the local calendar day. The top bar shows 0 once a full day has been missed, even before the next lesson resets the stored count to 1.
+- 2026-11-14: Sounds are synthesized at runtime with WebAudio (no audio files, nothing borrowed). They never play before the first pointer or key gesture, and mute is saved as `lumio.muted.v1`.
