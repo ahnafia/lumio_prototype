@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { isQuestion, type Lesson, type QuestionScreen, type Screen } from '@contract/schema';
@@ -5,9 +6,12 @@ import { LessonComplete } from '../celebrate/LessonComplete';
 import { useCourse } from '../course';
 import { Button, ProgressBar } from '../design/components';
 import { Icon } from '../design/Icon';
+import { useReducedMotion } from '../design/useReducedMotion';
 import { FeedbackSheet } from '../feedback/FeedbackSheet';
 import { recordLessonComplete, type CompletionResult } from '../progress/store';
 import { Message } from '../shell/Message';
+import { sounds } from '../sound/sound';
+import { SoundToggle } from '../sound/SoundToggle';
 import { GraphTap } from './questions/GraphTap';
 import { MultipleChoice } from './questions/MultipleChoice';
 import { Numeric } from './questions/Numeric';
@@ -42,6 +46,7 @@ export function LessonRoute() {
 function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const navigate = useNavigate();
   const { course } = useCourse();
+  const reducedMotion = useReducedMotion();
   const screens = lesson.screens;
   const questionCount = screens.filter(isQuestion).length;
 
@@ -72,6 +77,7 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
     if (isLast) {
       // In the event handler, not an effect, so StrictMode can't record it twice.
       setResult(recordLessonComplete(lesson.id, lesson.xp));
+      sounds.complete();
       return;
     }
     setIndex((i) => i + 1);
@@ -83,6 +89,7 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
     if (!canCheck) return;
     setChecked(answer);
     if (answer.isCorrect) setCorrectCount((n) => n + 1);
+    (answer.isCorrect ? sounds.correct : sounds.wrong)();
   }, [answer, canCheck]);
 
   const exit = () => {
@@ -139,18 +146,28 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
           <Icon name="close" size={26} />
         </button>
         <ProgressBar value={(index + (checked ? 1 : 0)) / screens.length} label={`Screen ${index + 1} of ${screens.length}`} />
+        <SoundToggle />
       </header>
 
       <main className="player__body column">
-        <div key={screen.id} className="player__screen">
-          <ScreenView
-            screen={screen}
-            engaged={engaged.has(screen.id)}
-            onEngaged={() => markEngaged(screen.id)}
-            onAnswer={setAnswer}
-            checked={!!checked}
-          />
-        </div>
+        {/* Old screen slides out left, new one slides in from the right: 120 + 180 ms. */}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={screen.id}
+            className={`player__screen${checked && !checked.isCorrect ? ' is-wrong' : ''}`}
+            initial={reducedMotion ? false : { opacity: 0, x: 28 }}
+            animate={{ opacity: 1, x: 0, transition: { duration: reducedMotion ? 0 : 0.18, ease: [0.2, 0.8, 0.2, 1] } }}
+            exit={reducedMotion ? { opacity: 1 } : { opacity: 0, x: -28, transition: { duration: 0.12, ease: 'easeIn' } }}
+          >
+            <ScreenView
+              screen={screen}
+              engaged={engaged.has(screen.id)}
+              onEngaged={() => markEngaged(screen.id)}
+              onAnswer={setAnswer}
+              checked={!!checked}
+            />
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <footer className="player__footer" inert={!!checked}>
