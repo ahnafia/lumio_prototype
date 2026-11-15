@@ -1,0 +1,105 @@
+.player {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.player__top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  height: var(--topbar-h);
+  background: var(--c-bg);
+}
+
+.player__top .icon-btn {
+  margin-left: calc(-1 * var(--s-2));
+}
+
+.player__body {
+  flex: 1;
+  padding-top: var(--s-4);
+  /* room so the pinned footer never covers content */
+  padding-bottom: calc(120px + env(safe-area-inset-bottom));
+}
+
+.player__screen {
+  animation: screen-in var(--dur-slow) var(--ease);
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+.player__footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: var(--s-4) 0 calc(var(--s-4) + env(safe-area-inset-bottom));
+  background: var(--c-bg);
+  border-top: 2px solid var(--c-line);
+}
+
+/* ---------------------------------------------------------------- screens */
+
+.screen {
+  display: grid;
+  gap: var(--s-5);
+}
+
+.screen__title {
+  font-size: var(--fs-xl);
+}
+
+.screen__caption,
+.screen__body {
+  font-size: var(--fs-lg);
+}
+
+.screen__hint {
+  color: var(--c-muted);
+  font-size: var(--fs-sm);
+}
+
+/* ---------------------------------------------------------------- animation host */
+
+.anim-box {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.anim-box__frame {
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 2px solid var(--c-line);
+  background: var(--c-surface);
+  box-sizing: content-box;
+}
+
+.anim-placeholder {
+  display: grid;
+  place-items: center;
+  gap: var(--s-2);
+  min-height: 180px;
+  padding: var(--s-6);
+  border-radius: var(--r-md);
+  border: 2px dashed var(--c-line);
+  background: var(--c-surface-2);
+  color: var(--c-muted);
+  text-align: center;
+}
+
+.anim-placeholder small {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  word-break: break-word;
+}
