@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { isQuestion, type Lesson, type Screen } from '@contract/schema';
+import { isQuestion, type Lesson, type QuestionScreen, type Screen } from '@contract/schema';
+import { LessonComplete } from '../celebrate/LessonComplete';
 import { useCourse } from '../course';
 import { Button, ProgressBar } from '../design/components';
 import { Icon } from '../design/Icon';
+import { FeedbackSheet } from '../feedback/FeedbackSheet';
 import { Message } from '../shell/Message';
 import { GraphTap } from './questions/GraphTap';
 import { MultipleChoice } from './questions/MultipleChoice';
@@ -37,63 +39,90 @@ export function LessonRoute() {
 
 function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const navigate = useNavigate();
-  const [index, setIndex] = useState(() => devStartScreen(lesson.screens.length));
+  const screens = lesson.screens;
+  const questionCount = screens.filter(isQuestion).length;
+
+  const [index, setIndex] = useState(() => devStartScreen(screens.length));
   /** Screen ids whose animation the student has engaged with. */
   const [engaged, setEngaged] = useState<ReadonlySet<string>>(() => new Set());
-  /** The current question's answer status (reset per screen). */
+  /** The current question's answer, as last reported by the screen. */
   const [answer, setAnswer] = useState<AnswerStatus>(NO_ANSWER);
-  const screens = lesson.screens;
+  /** Set once Check is pressed on the current question: the sheet is open and inputs lock. */
+  const [checked, setChecked] = useState<AnswerStatus | null>(null);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [finished, setFinished] = useState(false);
+
   const screen = screens[index];
   const isLast = index === screens.length - 1;
+  const question = screen && isQuestion(screen) ? screen : null;
 
   const markEngaged = useCallback((id: string) => {
     setEngaged((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
   }, []);
 
-  const canContinue =
-    !!screen &&
-    !(screen.type === 'animation' && screen.requireInteraction && !engaged.has(screen.id)) &&
-    (!isQuestion(screen) || answer.hasAnswer);
+  const canContinue = !!screen && !question && !(screen.type === 'animation' && screen.requireInteraction && !engaged.has(screen.id));
+  const canCheck = !!question && !checked && answer.hasAnswer;
 
   const advance = useCallback(() => {
-    if (isLast) navigate('/');
-    else {
-      setIndex((i) => i + 1);
-      setAnswer(NO_ANSWER);
+    if (isLast) {
+      setFinished(true);
+      return;
     }
-  }, [isLast, navigate]);
+    setIndex((i) => i + 1);
+    setAnswer(NO_ANSWER);
+    setChecked(null);
+  }, [isLast]);
+
+  const check = useCallback(() => {
+    if (!canCheck) return;
+    setChecked(answer);
+    if (answer.isCorrect) setCorrectCount((n) => n + 1);
+  }, [answer, canCheck]);
 
   const exit = () => {
     if (index === 0 || window.confirm('Leave this lesson? Your progress in it will be lost.')) navigate('/');
   };
 
-  // Enter continues (unless focus is on a control that handles Enter itself).
+  // Enter: Check, then Continue. Real buttons (footer, sheet, exit) handle Enter natively.
   useEffect(() => {
+    if (finished) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Enter' || !canContinue) return;
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === 'BUTTON' || tag === 'INPUT' || tag === 'A') return;
-      e.preventDefault();
-      advance();
+      if (e.key !== 'Enter' || e.repeat) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('a') || (target?.closest('button') && !target.closest('.choice'))) return;
+      if (canCheck) {
+        e.preventDefault();
+        check();
+      } else if (checked || canContinue) {
+        e.preventDefault();
+        advance();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [canContinue, advance]);
+  }, [finished, canCheck, canContinue, checked, check, advance]);
 
   // Each new screen starts at the top.
   useEffect(() => {
     window.scrollTo({ top: 0 });
-  }, [index]);
+  }, [index, finished]);
 
+  if (finished) {
+    return (
+      <LessonComplete lesson={lesson} xpEarned={lesson.xp} correct={correctCount} questions={questionCount} onContinue={() => navigate('/')} />
+    );
+  }
   if (!screen) return null;
 
+  const feedback = question && checked ? (checked.isCorrect ? question.feedback.correct : question.feedback.incorrect) : '';
+
   return (
-    <div className="player">
+    <div className={`player${checked ? ' is-checked' : ''}`}>
       <header className="player__top column">
         <button type="button" className="icon-btn" onClick={exit} aria-label="Exit lesson">
           <Icon name="close" size={26} />
         </button>
-        <ProgressBar value={index / screens.length} label={`Screen ${index + 1} of ${screens.length}`} />
+        <ProgressBar value={(index + (checked ? 1 : 0)) / screens.length} label={`Screen ${index + 1} of ${screens.length}`} />
       </header>
 
       <main className="player__body column">
@@ -103,17 +132,35 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
             engaged={engaged.has(screen.id)}
             onEngaged={() => markEngaged(screen.id)}
             onAnswer={setAnswer}
+            checked={!!checked}
           />
         </div>
       </main>
 
-      <footer className="player__footer">
+      <footer className="player__footer" inert={!!checked}>
         <div className="column">
-          <Button block disabled={!canContinue} onClick={advance}>
-            {isLast ? 'Finish' : 'Continue'}
-          </Button>
+          {question ? (
+            <Button block disabled={!canCheck} onClick={check}>
+              Check
+            </Button>
+          ) : (
+            <Button block disabled={!canContinue} onClick={advance}>
+              {isLast ? 'Finish' : 'Continue'}
+            </Button>
+          )}
         </div>
       </footer>
+
+      {question && (
+        <FeedbackSheet
+          open={!!checked}
+          correct={!!checked?.isCorrect}
+          message={feedback}
+          seed={index}
+          continueLabel={isLast ? 'Finish' : 'Continue'}
+          onContinue={advance}
+        />
+      )}
     </div>
   );
 }
@@ -123,20 +170,29 @@ interface ScreenViewProps {
   engaged: boolean;
   onEngaged: () => void;
   onAnswer: (status: AnswerStatus) => void;
+  checked: boolean;
 }
 
-function ScreenView({ screen, engaged, onEngaged, onAnswer }: ScreenViewProps) {
+function ScreenView({ screen, engaged, onEngaged, onAnswer, checked }: ScreenViewProps) {
   switch (screen.type) {
     case 'animation':
       return <AnimationScreen screen={screen} engaged={engaged} onEngaged={onEngaged} />;
     case 'explanation':
       return <ExplanationScreen screen={screen} />;
+    default:
+      return <QuestionView screen={screen} onAnswer={onAnswer} checked={checked} />;
+  }
+}
+
+function QuestionView({ screen, onAnswer, checked }: { screen: QuestionScreen; onAnswer: (s: AnswerStatus) => void; checked: boolean }) {
+  const props = { locked: checked, revealed: checked, onChange: onAnswer };
+  switch (screen.type) {
     case 'multiple-choice':
-      return <MultipleChoice screen={screen} locked={false} revealed={false} onChange={onAnswer} />;
+      return <MultipleChoice screen={screen} {...props} />;
     case 'numeric':
-      return <Numeric screen={screen} locked={false} revealed={false} onChange={onAnswer} />;
+      return <Numeric screen={screen} {...props} />;
     case 'graph-tap':
-      return <GraphTap screen={screen} locked={false} revealed={false} onChange={onAnswer} />;
+      return <GraphTap screen={screen} {...props} />;
   }
 }
 

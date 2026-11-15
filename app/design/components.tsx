@@ -1,10 +1,11 @@
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
+import type { ComponentPropsWithRef, HTMLAttributes, ReactNode } from 'react';
 
 /** Small shared building blocks. Styles live in base.css. */
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'good' | 'bad';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+// React 19: ref is a plain prop, so it passes through ...rest.
+interface ButtonProps extends ComponentPropsWithRef<'button'> {
   variant?: ButtonVariant;
   block?: boolean;
 }
