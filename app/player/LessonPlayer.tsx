@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { Lesson, Screen } from '@contract/schema';
+import { isQuestion, type Lesson, type Screen } from '@contract/schema';
 import { useCourse } from '../course';
 import { Button, ProgressBar } from '../design/components';
 import { Icon } from '../design/Icon';
 import { Message } from '../shell/Message';
+import { MultipleChoice } from './questions/MultipleChoice';
+import { Numeric } from './questions/Numeric';
+import { NO_ANSWER, type AnswerStatus } from './questions/types';
 import { AnimationScreen } from './screens/AnimationScreen';
 import { ExplanationScreen } from './screens/ExplanationScreen';
 import './player.css';
@@ -36,6 +39,8 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const [index, setIndex] = useState(0);
   /** Screen ids whose animation the student has engaged with. */
   const [engaged, setEngaged] = useState<ReadonlySet<string>>(() => new Set());
+  /** The current question's answer status (reset per screen). */
+  const [answer, setAnswer] = useState<AnswerStatus>(NO_ANSWER);
   const screens = lesson.screens;
   const screen = screens[index];
   const isLast = index === screens.length - 1;
@@ -44,11 +49,17 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
     setEngaged((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
   }, []);
 
-  const canContinue = !!screen && !(screen.type === 'animation' && screen.requireInteraction && !engaged.has(screen.id));
+  const canContinue =
+    !!screen &&
+    !(screen.type === 'animation' && screen.requireInteraction && !engaged.has(screen.id)) &&
+    (!isQuestion(screen) || answer.hasAnswer);
 
   const advance = useCallback(() => {
     if (isLast) navigate('/');
-    else setIndex((i) => i + 1);
+    else {
+      setIndex((i) => i + 1);
+      setAnswer(NO_ANSWER);
+    }
   }, [isLast, navigate]);
 
   const exit = () => {
@@ -86,7 +97,12 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
 
       <main className="player__body column">
         <div key={screen.id} className="player__screen">
-          <ScreenView screen={screen} engaged={engaged.has(screen.id)} onEngaged={() => markEngaged(screen.id)} />
+          <ScreenView
+            screen={screen}
+            engaged={engaged.has(screen.id)}
+            onEngaged={() => markEngaged(screen.id)}
+            onAnswer={setAnswer}
+          />
         </div>
       </main>
 
@@ -101,18 +117,29 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
   );
 }
 
-function ScreenView({ screen, engaged, onEngaged }: { screen: Screen; engaged: boolean; onEngaged: () => void }) {
+interface ScreenViewProps {
+  screen: Screen;
+  engaged: boolean;
+  onEngaged: () => void;
+  onAnswer: (status: AnswerStatus) => void;
+}
+
+function ScreenView({ screen, engaged, onEngaged, onAnswer }: ScreenViewProps) {
   switch (screen.type) {
     case 'animation':
       return <AnimationScreen screen={screen} engaged={engaged} onEngaged={onEngaged} />;
     case 'explanation':
       return <ExplanationScreen screen={screen} />;
+    case 'multiple-choice':
+      return <MultipleChoice screen={screen} locked={false} revealed={false} onChange={onAnswer} />;
+    case 'numeric':
+      return <Numeric screen={screen} locked={false} revealed={false} onChange={onAnswer} />;
     default:
-      // Temporary until #9 / #10.
+      // Temporary until #10.
       return (
         <div className="screen">
           <h1 className="screen__title">Question goes here</h1>
-          <p className="screen__hint">A {screen.type} question. It arrives in #9 and #10.</p>
+          <p className="screen__hint">A {screen.type} question. It arrives in #10.</p>
         </div>
       );
   }
