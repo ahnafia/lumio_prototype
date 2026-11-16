@@ -292,3 +292,8 @@
     animation: none;
   }
 }
+
+/* Jumping to a unit lands below the sticky top bar. */
+.unit {
+  scroll-margin-top: calc(var(--topbar-h) + var(--s-3));
+}

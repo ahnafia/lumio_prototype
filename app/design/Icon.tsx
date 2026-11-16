@@ -71,6 +71,22 @@ const paths = {
       <path d="M21 9.5l-5 5" />
     </>
   ),
+  present: (
+    <>
+      <rect x="3.5" y="4.5" width="17" height="11" rx="2" />
+      <path d="M12 15.5v4" />
+      <path d="M8.5 19.5h7" />
+      <path d="M10.5 8l3.5 2-3.5 2z" />
+    </>
+  ),
+  chevronLeft: <path d="M14.5 6l-6 6 6 6" />,
+  chevronRight: <path d="M9.5 6l6 6-6 6" />,
+  skip: (
+    <>
+      <path d="M6 6l7 6-7 6z" />
+      <path d="M17 6v12" />
+    </>
+  ),
 } satisfies Record<string, ReactElement>;
 
 export type IconName = keyof typeof paths;

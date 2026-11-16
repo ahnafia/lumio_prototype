@@ -6,8 +6,8 @@ import { AnimationBox } from '../AnimationBox';
 import { isWithin, parseNumber } from './parseNumber';
 import type { QuestionProps } from './types';
 
-export function Numeric({ screen, locked, revealed, onChange }: QuestionProps<NumericScreen>) {
-  const [text, setText] = useState('');
+export function Numeric({ screen, locked, revealed, onChange, demo }: QuestionProps<NumericScreen>) {
+  const [text, setText] = useState(() => (demo ? demoNumber(screen, demo) : ''));
   const id = useId();
   const value = parseNumber(text);
   const invalid = text.trim() !== '' && value === null;
@@ -63,4 +63,10 @@ export function Numeric({ screen, locked, revealed, onChange }: QuestionProps<Nu
       </p>
     </div>
   );
+}
+
+/** A typed answer for presenter mode: the answer itself, or one clearly outside the tolerance. */
+function demoNumber(screen: NumericScreen, demo: 'right' | 'wrong'): string {
+  const value = demo === 'right' ? screen.answer : screen.answer + Math.max(1, Math.ceil(screen.tolerance * 2 + 1));
+  return String(Number(value.toFixed(4)));
 }

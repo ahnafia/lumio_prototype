@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { HashRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { PathHome } from './path/PathHome';
+import { PresenterButton } from './present/PresenterPanel';
 import { useProgress } from './progress/useProgress';
 import { ErrorBoundary } from './shell/ErrorBoundary';
 import { Message } from './shell/Message';
@@ -16,6 +17,7 @@ function Home() {
   return (
     <>
       <TopBar xp={progress.xp} streak={progress.streak}>
+        <PresenterButton />
         <SoundToggle />
         <SettingsMenu />
       </TopBar>

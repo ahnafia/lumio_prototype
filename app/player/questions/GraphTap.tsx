@@ -10,11 +10,11 @@ function fmt(n: number) {
   return Number(n.toFixed(2)).toString();
 }
 
-export function GraphTap({ screen, locked, revealed, onChange }: QuestionProps<GraphTapScreen>) {
+export function GraphTap({ screen, locked, revealed, onChange, demo }: QuestionProps<GraphTapScreen>) {
   const { plot, target, tolerance } = screen;
   const boxRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
-  const [tap, setTap] = useState<Pt | null>(null);
+  const [tap, setTap] = useState<Pt | null>(() => (demo ? demoTap(screen, demo) : null));
   const clipId = useId();
 
   useLayoutEffect(() => {
@@ -192,4 +192,22 @@ export function GraphTap({ screen, locked, revealed, onChange }: QuestionProps<G
       </p>
     </div>
   );
+}
+
+/** A tap for presenter mode: on the target, or well away from it (on the first curve when possible). */
+function demoTap({ plot, target, tolerance }: GraphTapScreen, demo: 'right' | 'wrong'): Pt {
+  const [x0, x1] = plot.xRange;
+  const [y0, y1] = plot.yRange;
+  const clampY = (y: number) => Math.max(y0, Math.min(y1, y));
+  const f = plot.functions[0] ? compileFn(plot.functions[0].expr) : null;
+  const onCurve = (x: number) => {
+    const y = f?.(x);
+    return y !== undefined && Number.isFinite(y) ? clampY(y) : (y0 + y1) / 2;
+  };
+  if (demo === 'right') return { x: target.x, y: target.y ?? onCurve(target.x) };
+  // Go to whichever side has more room, at least 3 tolerances away.
+  const span = x1 - x0;
+  const away = Math.max(tolerance * 3, span * 0.3);
+  const x = target.x - x0 > x1 - target.x ? Math.max(x0, target.x - away) : Math.min(x1, target.x + away);
+  return { x, y: onCurve(x) };
 }

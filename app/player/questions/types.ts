@@ -13,4 +13,6 @@ export interface QuestionProps<S> {
   /** True after Check: show which answer was right. */
   revealed: boolean;
   onChange: (status: AnswerStatus) => void;
+  /** Presenter mode: start pre-filled with a right or wrong answer (the screen remounts to apply it). */
+  demo?: 'right' | 'wrong';
 }

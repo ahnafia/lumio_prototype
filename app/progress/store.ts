@@ -157,6 +157,17 @@ export function recordLessonComplete(lessonId: string, xp: number): CompletionRe
   return { xpAwarded, streak: next.streak.count, streakExtended: before.streak.lastDay !== today };
 }
 
+/**
+ * Presenter mode: mark these lessons done in one go (for showing done nodes, XP and a
+ * streak). Counts XP once per lesson, like playing them would.
+ */
+export function fillProgress(lessons: { id: string; xp: number }[]) {
+  let p = getProgress();
+  const today = localDay();
+  for (const { id, xp } of lessons) p = completeLesson(p, id, xp, today).next;
+  write(p);
+}
+
 /** Wipe all progress (Reset). */
 export function resetProgress() {
   write(null);
