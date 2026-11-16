@@ -5,34 +5,59 @@ import { Button } from '../design/components';
 import { Icon } from '../design/Icon';
 import { plainText, RichText } from '../design/RichText';
 import { useReducedMotion } from '../design/useReducedMotion';
+import { usePresenting } from '../present/presenter';
 import { nodeStates, type NodeState, type ProgressSnapshot } from '../progress/state';
 import './path.css';
 
 /** Horizontal offsets in px for a gentle wind. One full sway every 8 nodes. */
 const SWAY = [0, 44, 70, 44, 0, -44, -70, -44];
 
-const STATE_LABEL: Record<NodeState, string> = { done: 'done', current: 'up next', locked: 'locked' };
+/** 'open' = a locked node opened up by presenter mode. */
+type ShownState = NodeState | 'open';
+
+const STATE_LABEL: Record<ShownState, string> = { done: 'done', current: 'up next', locked: 'locked', open: 'open for presenting' };
+
+interface PathState {
+  justCompleted?: string;
+  scrollToUnit?: string;
+  scrollTop?: boolean;
+}
 
 export function PathHome({ progress }: { progress: ProgressSnapshot }) {
   const loaded = useCourse();
   const entries = useMemo(() => pathEntries(loaded), [loaded]);
-  const states = useMemo(() => nodeStates(entries, progress.completed), [entries, progress.completed]);
+  const presenting = usePresenting();
+  const states = useMemo<ShownState[]>(
+    () => nodeStates(entries, progress.completed).map((s) => (presenting && s === 'locked' ? 'open' : s)),
+    [entries, progress.completed, presenting],
+  );
   const [openId, setOpenId] = useState<string | null>(null);
   const currentRef = useRef<HTMLButtonElement>(null);
   const reducedMotion = useReducedMotion();
   const location = useLocation();
   const navigate = useNavigate();
+  const [arrival] = useState(() => (location.state ?? {}) as PathState);
   // Coming back from a finished lesson: highlight the node it unlocked.
-  const [celebrate] = useState(() => !!(location.state as { justCompleted?: string } | null)?.justCompleted);
+  const celebrate = !!arrival.justCompleted;
 
-  // Bring the current node into view on load.
+  // Bring the current node into view on load, or the unit / top the presenter asked for.
+  // Runs on every navigation to the path (the presenter can jump while already here).
+  const scrolledOnce = useRef(false);
   useEffect(() => {
-    currentRef.current?.scrollIntoView({ block: 'center', behavior: reducedMotion ? 'auto' : 'smooth' });
-    // Drop the one-time highlight flag so a reload doesn't replay it.
-    if (celebrate) navigate('.', { replace: true, state: null });
-    // Only on mount: don't yank the page when progress changes underneath.
+    const st = (location.state ?? {}) as PathState;
+    const hasRequest = !!(st.scrollToUnit || st.scrollTop !== undefined || st.justCompleted);
+    // After the first scroll, only act on explicit requests (not our own state-clearing replace).
+    if (scrolledOnce.current && !hasRequest) return;
+    scrolledOnce.current = true;
+    const behavior = reducedMotion ? 'auto' : 'smooth';
+    if (st.scrollToUnit) document.getElementById(`unit-${st.scrollToUnit}`)?.closest('section')?.scrollIntoView({ block: 'start', behavior });
+    else if (st.scrollTop) window.scrollTo({ top: 0, behavior });
+    else currentRef.current?.scrollIntoView({ block: 'center', behavior });
+    // Drop the one-time flags so a reload doesn't replay them.
+    if (location.state) navigate('.', { replace: true, state: null });
+    // Keyed on the navigation only: don't yank the page when progress changes underneath.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location.key]);
 
   // Escape closes the popover.
   useEffect(() => {
@@ -91,7 +116,7 @@ export function PathHome({ progress }: { progress: ProgressSnapshot }) {
 
 interface PathNodeProps {
   entry: PathEntry;
-  state: NodeState;
+  state: ShownState;
   offset: number;
   open: boolean;
   onToggle: () => void;
@@ -126,7 +151,7 @@ function PathNode({ entry, state, offset, open, onToggle, buttonRef, justUnlocke
             if (!locked) onToggle();
           }}
         >
-          <Icon name={state === 'done' ? 'check' : state === 'locked' ? 'lock' : 'star'} size={state === 'locked' ? 26 : 32} />
+          <Icon name={state === 'done' ? 'check' : state === 'locked' ? 'lock' : 'star'} size={state === 'locked' ? 26 : state === 'open' ? 28 : 32} />
         </button>
       </div>
       {open && !locked && (

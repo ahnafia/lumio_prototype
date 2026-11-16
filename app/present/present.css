@@ -1,0 +1,274 @@
+/* Presenter mode: the panel, its tiles, and the in-lesson control bar. */
+
+.present-btn {
+  color: var(--c-primary);
+  background: var(--c-primary-soft);
+}
+
+.present-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--c-scrim);
+  animation: present-fade var(--dur) var(--ease);
+}
+
+@keyframes present-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.present-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(380px, 100%);
+  overflow-y: auto;
+  background: var(--c-bg);
+  border-left: 2px solid var(--c-line);
+  box-shadow: var(--shadow-2);
+  padding: var(--s-5) var(--s-5) calc(var(--s-6) + env(safe-area-inset-bottom));
+  display: grid;
+  align-content: start;
+  gap: var(--s-5);
+  outline: none;
+  animation: present-in var(--dur-slow) var(--ease);
+}
+
+@keyframes present-in {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+
+.present-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.present-panel__eyebrow {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-primary);
+}
+
+.present-panel__head h2 {
+  font-size: var(--fs-xl);
+}
+
+.present-section {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.present-section h3 {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-muted);
+}
+
+.present-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-2);
+}
+
+.present-tile {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: var(--s-2);
+  min-height: 52px;
+  padding: var(--s-2) var(--s-3);
+  border: 2px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  box-shadow: 0 3px 0 var(--c-line);
+  color: var(--c-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+
+.present-tile:hover {
+  background: var(--c-surface-2);
+}
+
+.present-tile:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--c-line);
+}
+
+.present-tile__label {
+  color: var(--c-ink);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-tight);
+}
+
+.present-tile__hint {
+  grid-column: 2;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  line-height: var(--lh-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.present-tile--good {
+  color: var(--c-good);
+}
+
+.present-tile--bad {
+  color: var(--c-bad);
+}
+
+.present-units {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s-1);
+}
+
+.present-units li {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+}
+
+.present-unit {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: var(--tap);
+  padding: 0 var(--s-2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.present-unit:hover {
+  background: var(--c-surface-2);
+}
+
+.present-unit__num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--c-primary-soft);
+  color: var(--c-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+}
+
+.present-unit__title {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.present-panel__foot {
+  display: grid;
+  gap: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 2px solid var(--c-line);
+}
+
+.present-panel__foot p {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+.present-off {
+  justify-self: start;
+  min-height: var(--tap);
+  padding: 0 var(--s-3);
+  border: 2px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-surface);
+  color: var(--c-muted);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------- in-lesson presenter bar */
+
+.present-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  padding: var(--s-2) 0 var(--s-1);
+}
+
+.present-bar__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  min-height: 36px;
+  padding: 0 var(--s-3);
+  border: 2px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+}
+
+.present-bar__btn:hover:not(:disabled) {
+  background: var(--c-surface-2);
+}
+
+.present-bar__btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.present-bar__btn--good {
+  color: var(--c-good-strong);
+  border-color: var(--c-good);
+}
+
+.present-bar__btn--bad {
+  color: var(--c-bad-strong);
+  border-color: var(--c-bad);
+}
+
+/* Locked nodes open up while presenting. */
+.node--open {
+  --node-bg: var(--c-surface);
+  --node-edge: var(--c-line);
+  --node-fg: var(--c-primary);
+  border: 3px solid var(--c-primary-soft);
+}
+
+@media (max-width: 340px) {
+  .present-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .present-scrim,
+  .present-panel {
+    animation: none;
+  }
+}

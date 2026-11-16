@@ -14,10 +14,12 @@ function shuffle<T>(items: readonly T[]): T[] {
   return a;
 }
 
-export function MultipleChoice({ screen, locked, revealed, onChange }: QuestionProps<MultipleChoiceScreen>) {
+export function MultipleChoice({ screen, locked, revealed, onChange, demo }: QuestionProps<MultipleChoiceScreen>) {
   // Shuffled once per attempt: the screen remounts for each attempt.
   const [choices] = useState(() => shuffle(screen.choices));
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(() =>
+    demo === 'right' ? screen.answer : demo === 'wrong' ? (screen.choices.find((c) => c.id !== screen.answer)?.id ?? null) : null,
+  );
 
   const select = (id: string) => {
     if (locked) return;

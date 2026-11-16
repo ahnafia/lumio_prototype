@@ -8,6 +8,8 @@ import { Button, ProgressBar } from '../design/components';
 import { Icon } from '../design/Icon';
 import { useReducedMotion } from '../design/useReducedMotion';
 import { FeedbackSheet } from '../feedback/FeedbackSheet';
+import { readLessonJump, usePresenting, type DemoAnswer } from '../present/presenter';
+import { PresenterButton } from '../present/PresenterPanel';
 import { recordLessonComplete, type CompletionResult } from '../progress/store';
 import { Message } from '../shell/Message';
 import { sounds } from '../sound/sound';
@@ -43,23 +45,39 @@ export function LessonRoute() {
   return <LessonPlayer key={`${lesson.id}:${location.key}`} lesson={lesson} />;
 }
 
+/** Presenter jumps can open a question already answered: `?a=right|wrong`. */
+function initialDemo(screens: Screen[], start: number, answer: DemoAnswer | null) {
+  const s = screens[start];
+  return answer && s && isQuestion(s) ? { kind: answer, n: 0 } : null;
+}
+
+const demoStatus = (kind: DemoAnswer): AnswerStatus => ({ hasAnswer: true, isCorrect: kind === 'right' });
+
 function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { course } = useCourse();
   const reducedMotion = useReducedMotion();
+  const presenting = usePresenting();
   const screens = lesson.screens;
   const questionCount = screens.filter(isQuestion).length;
 
-  const [index, setIndex] = useState(() => devStartScreen(screens.length));
+  // Presenter deep links: start screen, pre-answered question, or straight to the end screen.
+  const [jump] = useState(() => readLessonJump(screens.length));
+  const [demo, setDemo] = useState<{ kind: DemoAnswer; n: number } | null>(() => initialDemo(screens, jump.start, jump.answer));
+  const [index, setIndex] = useState(jump.start);
   /** Screen ids whose animation the student has engaged with. */
   const [engaged, setEngaged] = useState<ReadonlySet<string>>(() => new Set());
   /** The current question's answer, as last reported by the screen. */
-  const [answer, setAnswer] = useState<AnswerStatus>(NO_ANSWER);
+  const [answer, setAnswer] = useState<AnswerStatus>(() => (demo ? demoStatus(demo.kind) : NO_ANSWER));
   /** Set once Check is pressed on the current question: the sheet is open and inputs lock. */
-  const [checked, setChecked] = useState<AnswerStatus | null>(null);
-  const [correctCount, setCorrectCount] = useState(0);
-  /** Set when the lesson is finished; null while playing. */
-  const [result, setResult] = useState<CompletionResult | null>(null);
+  const [checked, setChecked] = useState<AnswerStatus | null>(() => (demo ? demoStatus(demo.kind) : null));
+  /** Set when the lesson is finished; null while playing. A presenter jump arrives already finished. */
+  const [result, setResult] = useState<CompletionResult | null>(
+    () => (presenting ? (location.state as { presentResult?: CompletionResult } | null)?.presentResult : null) ?? null,
+  );
+  // A presenter jump to the end screen shows a perfect run.
+  const [correctCount, setCorrectCount] = useState(() => (result ? questionCount : demo?.kind === 'right' ? 1 : 0));
   const finished = result !== null;
 
   const screen = screens[index];
@@ -83,7 +101,29 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
     setIndex((i) => i + 1);
     setAnswer(NO_ANSWER);
     setChecked(null);
+    setDemo(null);
   }, [isLast, lesson.id, lesson.xp]);
+
+  // ---- presenter controls: move freely, fill in an answer, or end the lesson now
+  const finishNow = () => {
+    setResult(recordLessonComplete(lesson.id, lesson.xp));
+    sounds.complete();
+  };
+  const goTo = (i: number) => {
+    setIndex(Math.max(0, Math.min(screens.length - 1, i)));
+    setAnswer(NO_ANSWER);
+    setChecked(null);
+    setDemo(null);
+  };
+  const presenterAnswer = (kind: DemoAnswer) => {
+    if (!question || checked) return;
+    const status = demoStatus(kind);
+    setDemo((d) => ({ kind, n: (d?.n ?? 0) + 1 }));
+    setAnswer(status);
+    setChecked(status);
+    if (status.isCorrect) setCorrectCount((n) => n + 1);
+    (status.isCorrect ? sounds.correct : sounds.wrong)();
+  };
 
   const check = useCallback(() => {
     if (!canCheck) return;
@@ -146,8 +186,33 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
           <Icon name="close" size={26} />
         </button>
         <ProgressBar value={(index + (checked ? 1 : 0)) / screens.length} label={`Screen ${index + 1} of ${screens.length}`} />
+        <PresenterButton />
         <SoundToggle />
       </header>
+
+      {presenting && (
+        <nav className="column present-bar" aria-label="Presenter controls">
+          <button type="button" className="present-bar__btn" disabled={index === 0} onClick={() => goTo(index - 1)}>
+            <Icon name="chevronLeft" size={16} /> Back
+          </button>
+          <button type="button" className="present-bar__btn" onClick={() => (isLast ? finishNow() : goTo(index + 1))}>
+            {isLast ? 'Finish' : 'Next'} <Icon name="chevronRight" size={16} />
+          </button>
+          {question && !checked && (
+            <>
+              <button type="button" className="present-bar__btn present-bar__btn--good" onClick={() => presenterAnswer('right')}>
+                <Icon name="check" size={16} /> Answer right
+              </button>
+              <button type="button" className="present-bar__btn present-bar__btn--bad" onClick={() => presenterAnswer('wrong')}>
+                <Icon name="close" size={16} /> Answer wrong
+              </button>
+            </>
+          )}
+          <button type="button" className="present-bar__btn" onClick={finishNow}>
+            <Icon name="skip" size={16} /> End lesson
+          </button>
+        </nav>
+      )}
 
       <main className="player__body column">
         {/* Old screen slides out left, new one slides in from the right: 120 + 180 ms. */}
@@ -165,6 +230,7 @@ function LessonPlayer({ lesson }: { lesson: Lesson }) {
               onEngaged={() => markEngaged(screen.id)}
               onAnswer={setAnswer}
               checked={!!checked}
+              demo={demo}
             />
           </motion.div>
         </AnimatePresence>
@@ -204,21 +270,30 @@ interface ScreenViewProps {
   onEngaged: () => void;
   onAnswer: (status: AnswerStatus) => void;
   checked: boolean;
+  demo: { kind: DemoAnswer; n: number } | null;
 }
 
-function ScreenView({ screen, engaged, onEngaged, onAnswer, checked }: ScreenViewProps) {
+function ScreenView({ screen, engaged, onEngaged, onAnswer, checked, demo }: ScreenViewProps) {
   switch (screen.type) {
     case 'animation':
       return <AnimationScreen screen={screen} engaged={engaged} onEngaged={onEngaged} />;
     case 'explanation':
       return <ExplanationScreen screen={screen} />;
     default:
-      return <QuestionView screen={screen} onAnswer={onAnswer} checked={checked} />;
+      // A presenter answer remounts the question so it starts pre-filled.
+      return <QuestionView key={`${screen.id}:${demo?.n ?? '-'}`} screen={screen} onAnswer={onAnswer} checked={checked} demo={demo?.kind} />;
   }
 }
 
-function QuestionView({ screen, onAnswer, checked }: { screen: QuestionScreen; onAnswer: (s: AnswerStatus) => void; checked: boolean }) {
-  const props = { locked: checked, revealed: checked, onChange: onAnswer };
+interface QuestionViewProps {
+  screen: QuestionScreen;
+  onAnswer: (s: AnswerStatus) => void;
+  checked: boolean;
+  demo?: DemoAnswer;
+}
+
+function QuestionView({ screen, onAnswer, checked, demo }: QuestionViewProps) {
+  const props = { locked: checked, revealed: checked, onChange: onAnswer, demo };
   switch (screen.type) {
     case 'multiple-choice':
       return <MultipleChoice screen={screen} {...props} />;
@@ -227,11 +302,4 @@ function QuestionView({ screen, onAnswer, checked }: { screen: QuestionScreen; o
     case 'graph-tap':
       return <GraphTap screen={screen} {...props} />;
   }
-}
-
-/** Dev only: `#/lesson/<id>?s=4` opens a lesson at screen 4 (0-based) for quick testing. */
-function devStartScreen(count: number): number {
-  if (!import.meta.env.DEV) return 0;
-  const s = Number(new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('s'));
-  return Number.isInteger(s) && s > 0 && s < count ? s : 0;
 }

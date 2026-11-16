@@ -2,14 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '../design/ConfirmDialog';
 import { Icon } from '../design/Icon';
+import { setPresenting, usePresenting } from '../present/presenter';
 import { resetProgress } from '../progress/store';
 
-/** The ⋮ menu in the top bar. Today it holds Reset progress (for demos). */
+/** The ⋮ menu in the top bar: presenter mode and Reset progress. */
 export function SettingsMenu() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const presenting = usePresenting();
 
   // Close on outside click or Escape.
   useEffect(() => {
@@ -42,9 +44,22 @@ export function SettingsMenu() {
         <div className="menu__list" role="menu">
           <button
             type="button"
+            role="menuitemcheckbox"
+            aria-checked={presenting}
+            className="menu__item"
+            autoFocus
+            onClick={() => {
+              setMenuOpen(false);
+              setPresenting(!presenting);
+            }}
+          >
+            <Icon name="present" size={18} /> Presenter mode
+            <span className={`menu__switch${presenting ? ' is-on' : ''}`} aria-hidden />
+          </button>
+          <button
+            type="button"
             role="menuitem"
             className="menu__item menu__item--danger"
-            autoFocus
             onClick={() => {
               setMenuOpen(false);
               setConfirming(true);
